@@ -14,6 +14,8 @@ const server = express();
 //middleware
 server.use(morgan('tiny'));
 server.use(helmet());
+
+//start services
 redisConnect();
 dbConnect();
 
