@@ -1,8 +1,13 @@
 import { Router } from "express";
-import healthCheck from "../controllers/healthCheck.js";
+
+//routes imports
+import healthCheck from "../Controllers/healthCheck.js";
+import authRouter from "./authRouter.js"
+
+
 const centralRouter = new Router();
 
-
-centralRouter.get("/hc",healthCheck);
+centralRouter.use("/hc",healthCheck);
+centralRouter.use("/auth",authRouter);
 
 export default centralRouter;

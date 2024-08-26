@@ -1,4 +1,4 @@
-//dependency importd
+//dependency imports
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -12,12 +12,14 @@ import centralRouter from "./Routes/centralRouter.js";
 const server = express();
 
 //middleware
-server.use(morgan('tiny'));
 server.use(helmet());
+server.use(morgan('tiny'));
+server.use(express.json());
+server.use(express.urlencoded({extended:true}));
 
 //start services
-redisConnect();
-dbConnect();
+await redisConnect();
+await dbConnect();
 
 //app redirection
 server.use(centralRouter);

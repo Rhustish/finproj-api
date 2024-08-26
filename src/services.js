@@ -19,8 +19,8 @@ export const redisConnect = async () =>{
     await services.redisClient.connect();
 }
 
-export const dbConnect= () =>{
-    mongoose.connect(envVars.dbUri , {authSource:"admin"})
+export const dbConnect = async () =>{
+    await mongoose.connect(envVars.dbUri , {authSource:"admin"})
     .then(()=>console.log("DB connected"))
     .catch(err=>console.log(`couldn't resolve db ${err}`))
 }
