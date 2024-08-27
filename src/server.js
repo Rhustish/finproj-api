@@ -1,30 +1,23 @@
 //dependency imports
 import express from "express";
-import helmet from "helmet";
-import morgan from "morgan";
 
 //module imports
 import envVars from "./envVars.js";
-import { redisConnect ,dbConnect } from "./services.js";
-import centralRouter from "./Routes/centralRouter.js";
+import services from "./services.js";
+import middleware from "./middleware.js";
+import router from "./Routes/centralRouter.js";
 
 //initializing the application
 const server = express();
 
-//middleware
-server.use(helmet());
-server.use(morgan('tiny'));
-server.use(express.json());
-server.use(express.urlencoded({extended:true}));
-
 //start services
-await redisConnect();
-await dbConnect();
+await services();
 
-//app redirection
-server.use(centralRouter);
+//middleware
+await middleware(server);
 
-
+//app routing
+server.use(router);
 
 //invoking the server
 const serverPort = envVars.port;

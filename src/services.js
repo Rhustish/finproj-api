@@ -1,4 +1,5 @@
 import {createClient} from "redis";
+import RedisStore from "connect-redis";
 import mongoose from "mongoose";
 
 //envars
@@ -6,10 +7,13 @@ import envVars from "./envVars.js";
 
 export const services = {
     redisClient : new Object,
+    redisSessionStore : new Object,
 }
 
+
+
 //redis
-export const redisConnect = async () =>{
+const redisConnect = async () =>{
     services.redisClient = createClient({
         url: envVars.redisUri
     });
@@ -19,8 +23,26 @@ export const redisConnect = async () =>{
     await services.redisClient.connect();
 }
 
-export const dbConnect = async () =>{
+const redisSessionInit = async ()=>{
+    services.redisSessionStore = new RedisStore({
+        client : services.redisClient,
+        prefix: "apiTestSet"
+    });
+}
+
+const dbConnect = async () =>{
     await mongoose.connect(envVars.dbUri , {authSource:"admin"})
     .then(()=>console.log("DB connected"))
     .catch(err=>console.log(`couldn't resolve db ${err}`))
 }
+
+
+
+//entry point
+const initializeServices = async ()=>{
+    await redisConnect();
+    await redisSessionInit();
+    await dbConnect();
+}
+
+export default initializeServices;

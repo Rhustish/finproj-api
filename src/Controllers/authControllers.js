@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 //module imports
 import envVars from "../envVars.js";
 import UserCollection from "../Models/User.js";
+import { services } from "../services.js";
 
 //base64 extraction from request body
 const credentialsFromHeader = (request) => {
@@ -41,7 +42,7 @@ export const loginController = async (req,res)=>{
         return res.status(400).send("Missing Creds");
     }
     const [email , password] = credentials;
-    const findUser = await UserCollection.findOne({email:email});
+    const findUser = await UserCollection.findOne({email});
     if(!findUser){
         return res.status(404).send("User Not Found")
     }
@@ -52,6 +53,7 @@ export const loginController = async (req,res)=>{
     } 
 
     const token = tokenize(findUser._id);
+    req.session.token = token;
 
     res.status(200).send(token);
 }
