@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken"
 //module imports
 import envVars from "../envVars.js";
 import UserCollection from "../Models/User.js";
-import { services } from "../services.js";
 
 //base64 extraction from request body
 const credentialsFromHeader = (request) => {
@@ -34,7 +33,6 @@ const tokenize = (uid) =>{
     return token;
 }
 
-
 //sign-in /log-in logic
 export const loginController = async (req,res)=>{
     const credentials = credentialsFromHeader(req);
@@ -46,18 +44,16 @@ export const loginController = async (req,res)=>{
     if(!findUser){
         return res.status(404).send("User Not Found")
     }
-    console.log(findUser);
+
     const passwordHashMatch = await bcrypt.compare(password,findUser.passwordHash);
     if(!passwordHashMatch){
         return res.status(401).send("Invalid user id or password");
     } 
 
     const token = tokenize(findUser._id);
-    req.session.token = token;
-    services.redisClient.set(`sess:${req.sessionID}`,24*60*60,token);
     res.cookie('jwt',token,{
         httpOnly:true,
-        secure:false, //also set to treu after ssl
+        secure:envVars.env === "prod",
         maxAge: 24 * 60 * 60 * 1000 * 10 * 365
     })
 
@@ -90,21 +86,19 @@ export const signupController = async (req,res)=>{
     await userObject.save()
     .then(user=>{
         const token = tokenize(user._id);
-        req.session.token = token;
-        services.redisClient.set(`sess:${req.sessionID}`,24*60*60,token);
         res.cookie('jwt',token,{
             httpOnly:true,
-            secure:false, //also set to treu after ssl
+            secure:envVars.env === "prod",
             maxAge: 24 * 60 * 60 * 1000 * 10 * 365
         })
 
-        res.status(200).send({
+        return res.status(200).send({
             auth:'ok',
             tokenStatus:'jwt-cookie'
         })
     })
     .catch(err=>{
-        res.status(400).send(err.message);
+        return res.status(400).send(err.message);
     })
 
 }
