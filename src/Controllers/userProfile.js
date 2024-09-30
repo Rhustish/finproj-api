@@ -13,7 +13,7 @@ const userProfileController = async (req,res) =>{
             lastName: user.lastName,
             city: user.city,
             country: user.country,
-            dob : user.dob
+            age : user.age
         })
     }
     catch(err){
